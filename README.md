@@ -1,2 +1,5 @@
-# BGXAddons
-BGX Addons
+# BlåhajDB - BGX
+
+A better wrapper for BGX!
+
+
