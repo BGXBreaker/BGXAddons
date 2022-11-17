@@ -11,15 +11,14 @@ A better wrapper for BGX!
 ## API Reference
 
 Please include 'SpellDB.h' before anything else!
-```http
+```cpp
   #include "SpellDB.h"
 ```
 
 ## /!\ NECESSARY! /!\
 #### **Initializing Menus**
 
-For
-```http
+```cpp
   Database::InitializeCancelMenu(tab);
   Database::InitializeBuffMenu(tab);
 ``` 
@@ -30,7 +29,7 @@ For
 
 #### **Active Spell Database (Channeling/Cancel)**
 
-```http
+```cpp
   Database::canCancel(target);
 ```
 
@@ -40,7 +39,7 @@ For
 
 #### **Ally Buff Database**
 
-```http
+```cpp
   Database::canOnAllyBuff(hash);
 ```
 
