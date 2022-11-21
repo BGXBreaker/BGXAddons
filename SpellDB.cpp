@@ -501,6 +501,12 @@ namespace Database
                 key = "Q1";
                 texture = entity->get_spell(slot)->get_icon_texture_by_index(1);
                 break;
+            case (spellslot)50:
+                key = "Rune";
+                break;
+            case (spellslot)51:
+                key = "Item";
+                break;
             case spellslot::invalid:
                 key = "P";
                 texture = entity->get_passive_icon_texture();
@@ -511,27 +517,44 @@ namespace Database
                 break;
         }
 
-        if (entity == nullptr)
-            return;
-
-        auto model = entity->get_model();
-        auto id = std::to_string((int)entity->get_champion());
-
-        auto t = tab->add_tab(model, "[" + name + "]");
-        t->set_texture(entity->get_square_icon_portrait());
-
-        switch (mode)
+        if (entity != nullptr)
         {
-            case 1: // Consider Case 1 as "Cancel"
-                db::CanCancel[model + key] = t->add_checkbox(model + key, "[" + key + "] - " + spellName, defaultValue);
-                db::CanCancel[model + key]->set_texture(texture);
-                db::CanCancel[model + key]->set_tooltip("[Importance] of " + std::to_string(localImportance(entity->get_champion(), slot)));
-                break;
-            case 2: // Consider Case 2 as "Ally Buff"
-                db::CanOnAllyBuff[id + key] = t->add_checkbox(id + key, "[" + key + "] - " + spellName, defaultValue);
-                db::CanOnAllyBuff[id + key]->set_texture(texture);
-                break;
+            auto model = entity->get_model();
+            auto id = std::to_string((int)entity->get_champion());
+
+            auto t = tab->add_tab(model, "[" + name + "]");
+            t->set_texture(entity->get_square_icon_portrait());
+
+            switch (mode)
+            {
+                case 1: // Consider Case 1 as "Cancel"
+                    db::CanCancel[model + key] = t->add_checkbox(model + key, "[" + key + "] - " + spellName, defaultValue);
+                    db::CanCancel[model + key]->set_texture(texture);
+                    db::CanCancel[model + key]->set_tooltip("[Importance] of " + std::to_string(localImportance(entity->get_champion(), slot)));
+                    break;
+                case 2: // Consider Case 2 as "Ally Buff"
+                    db::CanOnAllyBuff[id + key] = t->add_checkbox(id + key, "[" + key + "] - " + spellName, defaultValue);
+                    db::CanOnAllyBuff[id + key]->set_texture(texture);
+                    break;
+            }
         }
+        else // Consider this as for Items/Runes
+        {
+            auto t = tab->add_tab(spellName, "[" + name + "]");
+            switch (mode)
+            {
+                case 1: // Consider Case 1 as "Cancel"
+                    // db::CanCancel[model + key] = t->add_checkbox(model + key, "[" + key + "] - " + spellName, defaultValue);
+                    break;
+                case 2: // Consider Case 2 as "Ally Buff"
+                    db::CanOnAllyBuff[spellName] = t->add_checkbox(spellName, "[" + key + "] - " + spellName, defaultValue);
+                    break;
+            }
+
+        }
+        
+
+        
     }
 
     void InitializeCancelMenu(TreeTab* tab)
@@ -731,6 +754,15 @@ namespace Database
 
         int counter = 5;
 
+        auto runeTab = tab->add_tab("runes", "[Runes/Items]");
+        {
+            runeTab->add_separator("separator1Runes", "[Runes]");
+            InitiateSlot(runeTab, nullptr, (spellslot)50, "Lethal Tempo (6 Stacks)", "LethalTempo", true, 2);
+            InitiateSlot(runeTab, nullptr, (spellslot)50, "Conqueror (12 Stacks)", "Conqueror", true, 2);
+            runeTab->add_separator("separator2Runes", "[Items]");
+            InitiateSlot(runeTab, nullptr, (spellslot)51, "Galeforce", "Galeforce", true, 2);
+        }
+
         for (auto& e : allyList)
         {
             if (e == nullptr)
@@ -800,6 +832,8 @@ namespace Database
             }
         }
 
+
+
         tab->add_separator("databaseInfo", "- Database made by Omori! <3 -");
         tab->add_separator("databaseVersion", "Version: " + DBVersion);
     }
@@ -811,6 +845,46 @@ namespace Database
 
         switch (buffHash)
         {
+            case (buff_hash("ASSETS/Perks/Styles/Precision/LethalTempo/LethalTempo.lua")):
+                {
+                    for (auto& e : entitylist->get_ally_heroes())
+                    {
+                        if (e && e->has_buff(buff_hash("ASSETS/Perks/Styles/Precision/LethalTempo/LethalTempo.lua")))
+                        {
+                            auto buff = e->get_buff(buff_hash("ASSETS/Perks/Styles/Precision/LethalTempo/LethalTempo.lua"));
+                            if (!buff || !buff->is_valid() || !buff->is_alive())
+                                return false;
+                            auto counter = buff->get_count();
+                            auto entity = Database::db::CanOnAllyBuff.find("LethalTempo");
+                            if (counter >= 6)
+                            {
+                                if (entity == Database::db::CanOnAllyBuff.end())
+                                    return false;
+
+                                return entity->second->get_bool();
+                            }
+                        }
+                    }
+                }
+                break;
+
+           case (buff_hash("ASSETS/Perks/Styles/Precision/Conqueror/ConquerorEnrage.lua")):
+           {
+               for (auto& e : entitylist->get_ally_heroes())
+               {
+                   if (e && e->has_buff(buff_hash("ASSETS/Perks/Styles/Precision/Conqueror/ConquerorEnrage.lua")))
+                   {
+                       auto entity = Database::db::CanOnAllyBuff.find("Conqueror");
+                       if (entity == Database::db::CanOnAllyBuff.end())
+                           return false;
+
+                       return entity->second->get_bool();
+                   }
+               }
+           }
+
+
+
             case (buff_hash("AsheQAttack")): // Ashe Q
                 slot = spellslot::q;
                 id = champion_id::Ashe;
@@ -993,6 +1067,24 @@ namespace Database
             return false;
 
         return entity->second->get_bool();
+    }
+
+    bool canGuaranteeHit(game_object_script target, float range = FLT_MAX, float speed = FLT_MAX, float delay = 0)
+    {
+        if (!target || !target->is_visible() || !target->is_targetable())
+            return false;
+
+        auto distance = target->get_position().distance(myhero);
+        auto ttR = std::max(delay, (distance / speed) + delay + (ping->get_ping() / 1000));
+
+        auto active = target->get_active_spell();
+        if (active == nullptr)
+            return false;
+
+        if (active->get_spell_data()->mCastTime() >= ttR)
+            return true;
+
+        return false;
     }
 }
 

@@ -3,7 +3,7 @@
 
 namespace Database
 {
-	inline std::string DBVersion = "0.2";
+	inline std::string DBVersion = "0.3";
 
 	/*
 	I'll try to make this as noob friendly as possible!
