@@ -47,6 +47,16 @@ Please include 'SpellDB.h' before anything else!
 | :-------- | :------- | :-------------------------------- |
 | `hash`      | `uint_32t` | **Required**. Hash of a spell |
 
+#### **Misc Functions**
+
+```cpp
+  Database::getDisplayName(target);
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `target`      | `game_object_script` | **Required**. Unit to get the display name of |
+
 
 ## FAQ
 
