@@ -14,515 +14,188 @@ namespace Database
 
     int getCastingImportance(game_object_script target)
     {
-        if (!target || !target->is_valid() || !target->is_ai_hero() || target->is_dead())
+        if (!target || !target->is_valid() || !target->is_ai_hero() || target->is_dead() || !target->get_active_spell())
             return 0;
 
         auto id = target->get_champion();
         auto cast = target->get_active_spell();
 
-        if (!cast)
-            return 0;
-
         auto spellSlot = cast->get_spellslot();
 
-        switch (id) {
-        case champion_id::Akshan:
-            switch (spellSlot) {
-            case spellslot::e:
-                return 1;
-            case spellslot::r:
-                return 2; // Not sure whether Akshan [R] should be 2 or 3.
-            default:
-                break;
-            }
+        std::map<std::pair<champion_id, spellslot>, int> importanceValues = {
+            {{champion_id::Akshan, spellslot::e}, 1},
+            {{champion_id::Akshan, spellslot::r}, 2},
+            {{champion_id::Caitlyn, spellslot::r}, 3},
+            {{champion_id::FiddleSticks, spellslot::w}, 1},
+            {{champion_id::FiddleSticks, spellslot::r}, 3},
+            {{champion_id::Galio, spellslot::w}, 1},
+            {{champion_id::Galio, spellslot::r}, 3},
+            {{champion_id::Gragas, spellslot::w}, 1},
+            {{champion_id::Irelia, spellslot::w}, 1},
+            {{champion_id::Ivern, spellslot::invalid}, 1},
+            {{champion_id::Janna, spellslot::r}, 3},
+            {{champion_id::Jhin, spellslot::r}, 3},
+            {{champion_id::Karthus, spellslot::r}, 3},
+            {{champion_id::Katarina, spellslot::r}, 3},
+            {{champion_id::Kayn, spellslot::r}, 2},
+            {{champion_id::KSante, spellslot::w}, 1},
+            {{champion_id::Lucian, spellslot::r}, 3},
+            {{champion_id::Malzahar, spellslot::r}, 3},
+            {{champion_id::MasterYi, spellslot::w}, 1},
+            {{champion_id::MissFortune, spellslot::r}, 3},
+            {{champion_id::Nunu, spellslot::w}, 1},
+            {{champion_id::Nunu, spellslot::r}, 3},
+            {{champion_id::Pantheon, spellslot::r}, 3},
+            {{champion_id::Poppy, spellslot::r}, 3},
+            {{champion_id::Pyke, spellslot::q}, 1},
+            {{champion_id::Quinn, spellslot::r}, 1},
+            {{champion_id::Rammus, spellslot::q}, 1},
+            {{champion_id::Ryze, spellslot::r}, 3},
+            {{champion_id::Samira, spellslot::r}, 2},
+            {{champion_id::Shen, spellslot::r}, 3},
+            {{champion_id::Sion, spellslot::q}, 2},
+            {{champion_id::Sion, spellslot::r}, 3},
+            {{champion_id::Sona, spellslot::r}, 3},
+            {{champion_id::TahmKench, spellslot::r}, 3},
+            {{champion_id::Taric, spellslot::r}, 3},
+            {{champion_id::Teemo, spellslot::r}, 3},
+            {{champion_id::Thresh, spellslot::r}, 3},
+            {{champion_id::TwistedFate, spellslot::r}, 3},
+            {{champion_id::Urgot, spellslot::r}, 3},
+            {{champion_id::Viktor, spellslot::r}, 3},
+            {{champion_id::Xayah, spellslot::r}, 3},
+            {{champion_id::Zed, spellslot::r}, 3},
+        };
 
-        case champion_id::Caitlyn:
-            if (spellSlot == spellslot::r)
-                return 3;
-            break;
-
-        case champion_id::FiddleSticks:
-            switch (spellSlot) {
-            case spellslot::w:
-                return 1;
-            case spellslot::r:
-                return 3;
-            default:
-                break;
-            }
-
-        case champion_id::Galio:
-            switch (spellSlot) {
-            case spellslot::w:
-                return 1;
-            case spellslot::r:
-                return 3;
-            default:
-                break;
-            }
-
-        case champion_id::Gragas:
-            if (spellSlot == spellslot::w)
-                return 1;
-            break;
-
-        case champion_id::Irelia:
-            if (spellSlot == spellslot::w)
-                return 1;
-            break;
-
-        case champion_id::Ivern:
-            if (spellSlot == spellslot::invalid) // Use spell hash
-                return 1;
-            break;
-
-        case champion_id::Janna:
-            if (spellSlot == spellslot::r)
-                return 3;
-            break;
-
-        case champion_id::Jhin:
-            if (spellSlot == spellslot::r)
-                return 3;
-            break;
-
-        case champion_id::Karthus:
-            if (spellSlot == spellslot::r)
-                return 3;
-            break;
-
-        case champion_id::Katarina:
-            if (spellSlot == spellslot::r)
-                return 3;
-            break;
-
-        case champion_id::Kayn:
-            if (spellSlot == spellslot::r) // Might discard this as the channel is being done while untargettable no matter what happens
-                return 2;
-            break;
-
-        case champion_id::KSante:
-            if (spellSlot == spellslot::w)
-                return 1;
-            break;
-
-        case champion_id::Lucian:
-            if (spellSlot == spellslot::r)
-                return 3;
-            break;
-
-        case champion_id::Malzahar:
-            if (spellSlot == spellslot::r)
-                return 3;
-            break;
-
-        case champion_id::MasterYi:
-            if (spellSlot == spellslot::w)
-                return 1; // Not sure if I should return 1 or 2 considering it's mostly used as an AA reset... returning 2 seems odd
-            break;
-
-        case champion_id::MissFortune:
-            if (spellSlot == spellslot::r)
-                return 3;
-            break;
-
-        case champion_id::Nunu:
-            switch (spellSlot) {
-            case spellslot::w:
-                return 1;
-            case spellslot::r:
-                return 3;
-            default:
-                break;
-            }
-
-        case champion_id::Pantheon:
-            if (spellSlot == spellslot::r)
-                return 3;
-            break;
-
-        case champion_id::Poppy:
-            if (spellSlot == spellslot::r)
-                return 3;
-            break;
-
-        case champion_id::Pyke:
-            if (spellSlot == spellslot::q)
-                return 1;
-            break;
-
-        case champion_id::Quinn:
-            if (spellSlot == spellslot::r)
-                return 1;
-            break;
-
-        case champion_id::Rammus:
-            if (spellSlot == spellslot::q)
-                return 1;
-            break;
-
-        case champion_id::Ryze:
-            if (spellSlot == spellslot::r)
-                return 3;
-            break;
-
-        case champion_id::Shen:
-            if (spellSlot == spellslot::r)
-                return 3;
-            break;
-
-        case champion_id::Sion:
-            switch (spellSlot) {
-            case spellslot::q:
-                return 2;
-            case spellslot::r:
-                return 3;
-            default:
-                break;
-            }
-            break;
-
-        case champion_id::TahmKench:
-            if (spellSlot == spellslot::w)
-                return 2;
-            break;
-
-        case champion_id::Taliyah:
-            if (spellSlot == spellslot::w)
-                return 2;
-            break;
-
-        case champion_id::TwistedFate:
-            if (spellSlot == spellslot::r)
-                return 3;
-            break;
-
-        case champion_id::Varus:
-            if (spellSlot == spellslot::q)
-                return 1;
-            break;
-
-        case champion_id::Velkoz:
-            if (spellSlot == spellslot::r)
-                return 3;
-            break;
-
-        case champion_id::Vi:
-            if (spellSlot == spellslot::q)
-                return 1;
-            break;
-
-        case champion_id::Warwick:
-            if (spellSlot == (spellslot)48 || spellSlot == spellslot::r)
-                return 3;
-            break;
-
-        case champion_id::Xerath:
-            switch (spellSlot) {
-            case spellslot::q:
-                return 1;
-            case spellslot::r:
-                return 3;
-            default:
-                break;
-            }
-
-        case champion_id::Yuumi:
-            switch (spellSlot) {
-            case spellslot::q:
-                return 1;
-            case spellslot::r:
-                return 3;
-            default:
-                break;
-            }
-
-        case champion_id::Zac:
-            if (spellSlot == spellslot::r)
-                return 3;
-            break;
-
-        default:
+        auto it = importanceValues.find({ id, spellSlot });
+        if (it != importanceValues.end())
+            return it->second;
+        else
             return 0;
-        }
-
-        return 0;
     }
 
     int localImportance(champion_id id, spellslot spellSlot)
     {
-        switch (id) {
-        case champion_id::Akshan:
-            switch (spellSlot) {
-            case spellslot::e:
-                return 1;
-            case spellslot::r:
-                return 2; // Not sure whether Akshan [R] should be 2 or 3.
-            default:
-                break;
-            }
+        std::map<std::pair<champion_id, spellslot>, int> importanceValues = {
+            {{champion_id::Akshan, spellslot::e}, 1},
+            {{champion_id::Akshan, spellslot::r}, 2},
+            {{champion_id::Caitlyn, spellslot::r}, 3},
+            {{champion_id::FiddleSticks, spellslot::w}, 1},
+            {{champion_id::FiddleSticks, spellslot::r}, 3},
+            {{champion_id::Galio, spellslot::w}, 1},
+            {{champion_id::Galio, spellslot::r}, 3},
+            {{champion_id::Gragas, spellslot::w}, 1},
+            {{champion_id::Irelia, spellslot::w}, 1},
+            {{champion_id::Ivern, spellslot::invalid}, 1},
+            {{champion_id::Janna, spellslot::r}, 3},
+            {{champion_id::Jhin, spellslot::r}, 3},
+            {{champion_id::Karthus, spellslot::r}, 3},
+            {{champion_id::Katarina, spellslot::r}, 3},
+            {{champion_id::Kayn, spellslot::r}, 2},
+            {{champion_id::KSante, spellslot::w}, 1},
+            {{champion_id::Lucian, spellslot::r}, 3},
+            {{champion_id::Malzahar, spellslot::r}, 3},
+            {{champion_id::MasterYi, spellslot::w}, 1},
+            {{champion_id::MissFortune, spellslot::r}, 3},
+            {{champion_id::Nunu, spellslot::w}, 1},
+            {{champion_id::Nunu, spellslot::r}, 3},
+            {{champion_id::Pantheon, spellslot::r}, 3},
+            {{champion_id::Poppy, spellslot::r}, 3},
+            {{champion_id::Pyke, spellslot::q}, 1},
+            {{champion_id::Quinn, spellslot::r}, 1},
+            {{champion_id::Rammus, spellslot::q}, 1},
+            {{champion_id::Ryze, spellslot::r}, 3},
+            {{champion_id::Samira, spellslot::r}, 2},
+            {{champion_id::Shen, spellslot::r}, 3},
+            {{champion_id::Sion, spellslot::q}, 2},
+            {{champion_id::Sion, spellslot::r}, 3},
+            {{champion_id::Sona, spellslot::r}, 3},
+            {{champion_id::TahmKench, spellslot::r}, 3},
+            {{champion_id::Taric, spellslot::r}, 3},
+            {{champion_id::Teemo, spellslot::r}, 3},
+            {{champion_id::Thresh, spellslot::r}, 3},
+            {{champion_id::TwistedFate, spellslot::r}, 3},
+            {{champion_id::Urgot, spellslot::r}, 3},
+            {{champion_id::Viktor, spellslot::r}, 3},
+            {{champion_id::Xayah, spellslot::r}, 3},
+            {{champion_id::Zed, spellslot::r}, 3},
+        };
 
-        case champion_id::Caitlyn:
-            if (spellSlot == spellslot::r)
-                return 3;
-            break;
-
-        case champion_id::FiddleSticks:
-            switch (spellSlot) {
-            case spellslot::w:
-                return 1;
-            case spellslot::r:
-                return 3;
-            default:
-                break;
-            }
-
-        case champion_id::Galio:
-            switch (spellSlot) {
-            case spellslot::w:
-                return 1;
-            case spellslot::r:
-                return 3;
-            default:
-                break;
-            }
-
-        case champion_id::Gragas:
-            if (spellSlot == spellslot::w)
-                return 1;
-            break;
-
-        case champion_id::Irelia:
-            if (spellSlot == spellslot::w)
-                return 1;
-            break;
-
-        case champion_id::Ivern:
-            if (spellSlot == spellslot::invalid) // Use spell hash
-                return 1;
-            break;
-
-        case champion_id::Janna:
-            if (spellSlot == spellslot::r)
-                return 3;
-            break;
-
-        case champion_id::Jhin:
-            if (spellSlot == spellslot::r)
-                return 3;
-            break;
-
-        case champion_id::Karthus:
-            if (spellSlot == spellslot::r)
-                return 3;
-            break;
-
-        case champion_id::Katarina:
-            if (spellSlot == spellslot::r)
-                return 3;
-            break;
-
-        case champion_id::Kayn:
-            if (spellSlot == spellslot::r) // Might discard this as the channel is being done while untargettable no matter what happens
-                return 2;
-            break;
-
-        case champion_id::KSante:
-            if (spellSlot == spellslot::w)
-                return 1;
-            break;
-
-        case champion_id::Lucian:
-            if (spellSlot == spellslot::r)
-                return 3;
-            break;
-
-        case champion_id::Malzahar:
-            if (spellSlot == spellslot::r)
-                return 3;
-            break;
-
-        case champion_id::MasterYi:
-            if (spellSlot == spellslot::w)
-                return 1; // Not sure if I should return 1 or 2 considering it's mostly used as an AA reset... returning 2 seems odd
-            break;
-
-        case champion_id::MissFortune:
-            if (spellSlot == spellslot::r)
-                return 3;
-            break;
-
-        case champion_id::Nunu:
-            switch (spellSlot) {
-            case spellslot::w:
-                return 1;
-            case spellslot::r:
-                return 3;
-            default:
-                break;
-            }
-
-        case champion_id::Pantheon:
-            if (spellSlot == spellslot::r)
-                return 3;
-            break;
-
-        case champion_id::Poppy:
-            if (spellSlot == spellslot::r)
-                return 3;
-            break;
-
-        case champion_id::Pyke:
-            if (spellSlot == spellslot::q)
-                return 1;
-            break;
-
-        case champion_id::Quinn:
-            if (spellSlot == spellslot::r)
-                return 1;
-            break;
-
-        case champion_id::Rammus:
-            if (spellSlot == spellslot::q)
-                return 1;
-            break;
-
-        case champion_id::Ryze:
-            if (spellSlot == spellslot::r)
-                return 3;
-            break;
-
-        case champion_id::Shen:
-            if (spellSlot == spellslot::r)
-                return 3;
-            break;
-
-        case champion_id::Sion:
-            switch (spellSlot) {
-                case spellslot::q:
-                    return 2;
-                case spellslot::r:
-                    return 3;
-                default:
-                    break;
-            }
-            break;
-
-        case champion_id::TahmKench:
-            if (spellSlot == spellslot::w)
-                return 2;
-            break;
-
-        case champion_id::Taliyah:
-            if (spellSlot == spellslot::w)
-                return 2;
-            break;
-
-        case champion_id::TwistedFate:
-            if (spellSlot == spellslot::r)
-                return 3;
-            break;
-
-        case champion_id::Varus:
-            if (spellSlot == spellslot::q)
-                return 1;
-            break;
-
-        case champion_id::Velkoz:
-            if (spellSlot == spellslot::r)
-                return 3;
-            break;
-
-        case champion_id::Vi:
-            if (spellSlot == spellslot::q)
-                return 1;
-            break;
-
-        case champion_id::Warwick:
-            if (spellSlot == (spellslot)48 || spellSlot == spellslot::r)
-                return 3;
-            break;
-
-        case champion_id::Xerath:
-            switch (spellSlot) {
-                case spellslot::q:
-                    return 1;
-                case spellslot::r:
-                    return 3;
-                default:
-                    break;
-                }
-
-        case champion_id::Yuumi:
-            switch (spellSlot) {
-                case spellslot::q:
-                    return 1;
-                case spellslot::r:
-                    return 3;
-                default:
-                    break;
-            }
-
-        case champion_id::Zac:
-            if (spellSlot == spellslot::r)
-                return 3;
-            break;
-
-        default:
+        auto it = importanceValues.find({ id, spellSlot });
+        if (it != importanceValues.end())
+            return it->second;
+        else
             return 0;
-        }
+    }
 
-        return 0;
+    std::string getDisplayName(game_object_script target)
+    {
+        std::map<int, std::string> championNames = {
+            {(int)champion_id::AurelionSol, "Aurelion Sol"},
+            {(int)champion_id::Chogath, "Cho'Gath"},
+            {(int)champion_id::DrMundo, "Dr. Mundo"},
+            {(int)champion_id::FiddleSticks, "Fiddlesticks"},
+            {(int)champion_id::JarvanIV, "Jarvan IV"},
+            {(int)champion_id::Kaisa, "Kai'Sa"},
+            {(int)champion_id::Khazix, "Kha'Zix"},
+            {(int)champion_id::KogMaw, "Kog'Maw"},
+            {(int)champion_id::KSante, "K'Sante"},
+            {(int)champion_id::Leblanc, "LeBlanc"},
+            {(int)champion_id::LeeSin, "Lee Sin"},
+            {(int)champion_id::MasterYi, "Master Yi"},
+            {(int)champion_id::MissFortune, "Miss Fortune"},
+            {(int)champion_id::MonkeyKing, "Wukong"},
+            {(int)champion_id::Nunu, "Nunu and Willump"},
+            {(int)champion_id::RekSai, "Rek'Sai"},
+            {(int)champion_id::Renata, "Renata Glasc"},
+            {(int)champion_id::TahmKench, "Tahm Kench"},
+            {(int)champion_id::Velkoz, "Vel'Koz"},
+            {(int)(champion_id)5000, "Target Dummy"},
+        };
+
+
+        auto id = target->get_champion();
+        if (championNames.count((int)id))
+            return championNames[(int)id];
+        else
+            return target->get_model();
     }
 
     void InitiateSlot(TreeTab* tab, game_object_script entity, spellslot slot, std::string name, std::string spellName, bool defaultValue, int mode)
     {
+        std::map<spellslot, std::pair<std::string, void*>> spell_data = {
+            {spellslot::q, {"Q", entity->get_spell(slot)->get_icon_texture()}},
+            {spellslot::w, {"W", entity->get_spell(slot)->get_icon_texture()}},
+            {spellslot::e, {"E", entity->get_spell(slot)->get_icon_texture()}},
+            {spellslot::r, {"R", entity->get_spell(slot)->get_icon_texture()}},
+            {spellslot::item_1, {"Q1", entity->get_spell(slot)->get_icon_texture_by_index(1)}},
+            {(spellslot)50, {"Rune", nullptr}},
+            {(spellslot)51, {"Item", nullptr}},
+            {spellslot::invalid, {"P", entity->get_passive_icon_texture()}}
+        };
+
+        auto spell = entity->get_spell(slot);
+
         std::string key;
         void* texture;
-        switch (slot)
-        {
-            case spellslot::q:
-                key = "Q";
-                texture = entity->get_spell(slot)->get_icon_texture();
-                break;
-            case spellslot::w:
-                key = "W";
-                texture = entity->get_spell(slot)->get_icon_texture();
-                break;
-            case spellslot::e:
-                key = "E";
-                texture = entity->get_spell(slot)->get_icon_texture();
-                break;
-            case spellslot::r:
-                key = "R";
-                texture = entity->get_spell(slot)->get_icon_texture();
-                break;
-            case spellslot::item_1:
-                key = "Q1";
-                texture = entity->get_spell(slot)->get_icon_texture_by_index(1);
-                break;
-            case (spellslot)50:
-                key = "Rune";
-                break;
-            case (spellslot)51:
-                key = "Item";
-                break;
-            case spellslot::invalid:
-                key = "P";
-                texture = entity->get_passive_icon_texture();
-                break;
-            default:
-                key = "?";
-                texture = entity->get_passive_icon_texture();
-                break;
+
+        auto it = spell_data.find(slot);
+        if (it != spell_data.end()) {
+            key = it->second.first;
+            texture = it->second.second;
+        }
+        else {
+            key = "?";
+            texture = entity->get_passive_icon_texture();
         }
 
         if (entity != nullptr)
         {
             auto model = entity->get_model();
+            auto displayName = getDisplayName(entity);
             auto id = std::to_string((int)entity->get_champion());
 
-            auto t = tab->add_tab(model, "[" + name + "]");
+            auto t = tab->add_tab(model, "[" + displayName + "]");
             t->set_texture(entity->get_square_icon_portrait());
 
             switch (mode)
@@ -575,6 +248,8 @@ namespace Database
                 return;
 
             auto id = e->get_champion();
+
+
 
             switch (id) {
                 case champion_id::Akshan:
@@ -670,6 +345,10 @@ namespace Database
 
                 case champion_id::Ryze:
                     InitiateSlot(tab, e, spellslot::r, "Ryze", "Realm Warp", true, 1);
+                    break;
+
+                case champion_id::Samira:
+                    InitiateSlot(tab, e, spellslot::r, "Samira", "Inferno Trigger", true, 1);
                     break;
 
                 case champion_id::Shen:
@@ -1069,19 +748,20 @@ namespace Database
         return entity->second->get_bool();
     }
 
-    bool canGuaranteeHit(game_object_script target, float range = FLT_MAX, float speed = FLT_MAX, float delay = 0)
+    bool canGuaranteeHit(game_object_script target, float range, float speed, float delay, float width)
     {
         if (!target || !target->is_visible() || !target->is_targetable())
             return false;
 
         auto distance = target->get_position().distance(myhero);
         auto ttR = std::max(delay, (distance / speed) + delay + (ping->get_ping() / 1000));
+        auto timeToEscape = width / target->get_move_speed();
+
+        if (timeToEscape >= ttR)
+            return true;
 
         auto active = target->get_active_spell();
-        if (active == nullptr)
-            return false;
-
-        if (active->get_spell_data()->mCastTime() >= ttR)
+        if (active != nullptr && active->get_spell_data()->mCastTime() + timeToEscape >= ttR)
             return true;
 
         return false;

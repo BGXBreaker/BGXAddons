@@ -3,7 +3,7 @@
 
 namespace Database
 {
-	inline std::string DBVersion = "0.3";
+	inline std::string DBVersion = "0.4";
 
 	/*
 	I'll try to make this as noob friendly as possible!
@@ -21,7 +21,13 @@ namespace Database
 
 	Database::InitializeCancelMenu(spells);
 	*/
+
+	// Not to be used
 	void InitiateSlot(TreeTab* tab, game_object_script entity, spellslot slot, std::string name, std::string spellName, bool defaultValue, int mode);
+
+	// Returns a std::string containing the display name of a champion
+	// e.g. Kaisa -> Kai'Sa / Monkeyking -> Wukong
+	std::string getDisplayName(game_object_script target);
 
 	// Returns Importance via active spell
 	// Possible Return Values:
@@ -37,7 +43,7 @@ namespace Database
 	//	1 = Low Importance
 	//	2 = Medium Importance
 	//	3 = Critical Importance
-	int getSpellImportanceByHash(uint32_t hash);
+	// int getSpellImportanceByHash(uint32_t hash); - Not done yet.
 
 	// Initializes Cancel Spell Menu, will only initialize for Champions Supported **and** in-game!
 	void InitializeCancelMenu(TreeTab* tab);
@@ -51,4 +57,10 @@ namespace Database
 
 	// Checks if user ticked active spell
 	bool canCancel(game_object_script target);
+
+	// For Circular Spells;
+	// Checks if you can guarantee a hit on a champion. To be reworked (for better usage / not exclusivity to circular spells)
+	// Please refrain from using this at the moment!
+	bool canGuaranteeHit(game_object_script target, float range = FLT_MAX, float speed = FLT_MAX, float delay = 0, float width = 0);
+
 }
