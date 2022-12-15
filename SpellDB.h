@@ -3,7 +3,7 @@
 
 namespace Database
 {
-	inline std::string DBVersion = "0.4";
+	inline std::string DBVersion = "0.4.1";
 
 	/*
 	I'll try to make this as noob friendly as possible!
@@ -27,6 +27,8 @@ namespace Database
 
 	// Returns a std::string containing the display name of a champion
 	// e.g. Kaisa -> Kai'Sa / Monkeyking -> Wukong
+	// NOTE: Do not use this in your 'key' for menus! This contains special characters and **WILL** break menus.
+	// You can use the string in the display name of the menus without any issue.
 	std::string getDisplayName(game_object_script target);
 
 	// Returns Importance via active spell
@@ -62,5 +64,4 @@ namespace Database
 	// Checks if you can guarantee a hit on a champion. To be reworked (for better usage / not exclusivity to circular spells)
 	// Please refrain from using this at the moment!
 	bool canGuaranteeHit(game_object_script target, float range = FLT_MAX, float speed = FLT_MAX, float delay = 0, float width = 0);
-
 }

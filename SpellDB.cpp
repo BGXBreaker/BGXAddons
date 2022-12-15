@@ -163,30 +163,44 @@ namespace Database
 
     void InitiateSlot(TreeTab* tab, game_object_script entity, spellslot slot, std::string name, std::string spellName, bool defaultValue, int mode)
     {
-        std::map<spellslot, std::pair<std::string, void*>> spell_data = {
-            {spellslot::q, {"Q", entity->get_spell(slot)->get_icon_texture()}},
-            {spellslot::w, {"W", entity->get_spell(slot)->get_icon_texture()}},
-            {spellslot::e, {"E", entity->get_spell(slot)->get_icon_texture()}},
-            {spellslot::r, {"R", entity->get_spell(slot)->get_icon_texture()}},
-            {spellslot::item_1, {"Q1", entity->get_spell(slot)->get_icon_texture_by_index(1)}},
-            {(spellslot)50, {"Rune", nullptr}},
-            {(spellslot)51, {"Item", nullptr}},
-            {spellslot::invalid, {"P", entity->get_passive_icon_texture()}}
-        };
-
-        auto spell = entity->get_spell(slot);
-
         std::string key;
         void* texture;
-
-        auto it = spell_data.find(slot);
-        if (it != spell_data.end()) {
-            key = it->second.first;
-            texture = it->second.second;
-        }
-        else {
+        switch (slot)
+        {
+        case spellslot::q:
+            key = "Q";
+            texture = entity->get_spell(slot)->get_icon_texture();
+            break;
+        case spellslot::w:
+            key = "W";
+            texture = entity->get_spell(slot)->get_icon_texture();
+            break;
+        case spellslot::e:
+            key = "E";
+            texture = entity->get_spell(slot)->get_icon_texture();
+            break;
+        case spellslot::r:
+            key = "R";
+            texture = entity->get_spell(slot)->get_icon_texture();
+            break;
+        case spellslot::item_1:
+            key = "Q1";
+            texture = entity->get_spell(slot)->get_icon_texture_by_index(1);
+            break;
+        case (spellslot)50:
+            key = "Rune";
+            break;
+        case (spellslot)51:
+            key = "Item";
+            break;
+        case spellslot::invalid:
+            key = "P";
+            texture = entity->get_passive_icon_texture();
+            break;
+        default:
             key = "?";
             texture = entity->get_passive_icon_texture();
+            break;
         }
 
         if (entity != nullptr)
@@ -202,12 +216,18 @@ namespace Database
             {
                 case 1: // Consider Case 1 as "Cancel"
                     db::CanCancel[model + key] = t->add_checkbox(model + key, "[" + key + "] - " + spellName, defaultValue);
-                    db::CanCancel[model + key]->set_texture(texture);
+                    if (texture != nullptr)
+                    {
+                        db::CanCancel[model + key]->set_texture(texture);
+                    }
                     db::CanCancel[model + key]->set_tooltip("[Importance] of " + std::to_string(localImportance(entity->get_champion(), slot)));
                     break;
                 case 2: // Consider Case 2 as "Ally Buff"
                     db::CanOnAllyBuff[id + key] = t->add_checkbox(id + key, "[" + key + "] - " + spellName, defaultValue);
-                    db::CanOnAllyBuff[id + key]->set_texture(texture);
+                    if (texture != nullptr)
+                    {
+                        db::CanOnAllyBuff[id + key]->set_texture(texture);
+                    }
                     break;
             }
         }
@@ -225,9 +245,6 @@ namespace Database
             }
 
         }
-        
-
-        
     }
 
     void InitializeCancelMenu(TreeTab* tab)
